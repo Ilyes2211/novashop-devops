@@ -1,11 +1,40 @@
 stages:
   - validate
+  - build
+  - test
+  - plan
+
+variables:
+  AWS_DEFAULT_REGION: "eu-west-3"
 
 terraform_validate:
   stage: validate
-  tags:
-    - devops
+  tags: [devops]
   script:
     - cd terraform
-    - terraform init
+    - terraform init -input=false
+    - terraform fmt -check
     - terraform validate
+
+docker_build:
+  stage: build
+  tags: [devops]
+  script:
+    - docker build -t novashop:$CI_COMMIT_SHORT_SHA .
+
+docker_test:
+  stage: test
+  tags: [devops]
+  script:
+    - docker rm -f novashop-test 2>/dev/null || true
+    - docker run -d --name novashop-test novashop:$CI_COMMIT_SHORT_SHA
+    - docker ps --filter name=novashop-test
+    - docker rm -f novashop-test
+
+terraform_plan:
+  stage: plan
+  tags: [devops]
+  script:
+    - cd terraform
+    - terraform init -input=false
+    - terraform plan -input=false
