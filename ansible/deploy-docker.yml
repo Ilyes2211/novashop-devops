@@ -1,0 +1,8 @@
+---
+- name: Déploiement NovaShop v2 + monitoring
+  hosts: web
+  become: yes
+  roles:
+    - docker
+    - novashop
+    - monitoring

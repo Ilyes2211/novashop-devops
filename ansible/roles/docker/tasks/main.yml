@@ -1,0 +1,21 @@
+---
+- name: Installer Docker et Docker Compose
+  apt:
+    name:
+      - docker.io
+      - docker-compose-v2
+    state: present
+    update_cache: yes
+
+- name: Démarrer Docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Créer un swap de 1 Go (t3.micro = 1 Go RAM)
+  shell: |
+    fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  args:
+    creates: /swapfile

@@ -1,0 +1,32 @@
+---
+- name: Arrêter le Nginx du TP1 (libère le port 80)
+  service:
+    name: nginx
+    state: stopped
+    enabled: no
+  failed_when: false
+
+- name: Créer le répertoire NovaShop
+  file:
+    path: /opt/novashop/app
+    state: directory
+    mode: "0755"
+
+- name: Copier le Dockerfile
+  copy:
+    src: "{{ playbook_dir }}/../Dockerfile"
+    dest: /opt/novashop/Dockerfile
+
+- name: Copier l'application
+  copy:
+    src: "{{ playbook_dir }}/../app/index.html"
+    dest: /opt/novashop/app/index.html
+
+- name: Construire l'image
+  command: docker build -t novashop:v2 /opt/novashop
+
+- name: Supprimer l'ancien conteneur si présent
+  shell: docker rm -f novashop || true
+
+- name: Démarrer NovaShop
+  command: docker run -d --restart unless-stopped --name novashop -p 80:80 novashop:v2

@@ -1,0 +1,21 @@
+---
+- name: Créer le répertoire monitoring
+  file:
+    path: /opt/novashop/monitoring
+    state: directory
+    mode: "0755"
+
+- name: Copier la configuration Prometheus
+  copy:
+    src: "{{ playbook_dir }}/../monitoring/prometheus.yml"
+    dest: /opt/novashop/monitoring/prometheus.yml
+
+- name: Copier le docker-compose
+  copy:
+    src: "{{ playbook_dir }}/../monitoring/docker-compose.yml"
+    dest: /opt/novashop/monitoring/docker-compose.yml
+
+- name: Démarrer la stack de monitoring
+  command: docker compose up -d
+  args:
+    chdir: /opt/novashop/monitoring
