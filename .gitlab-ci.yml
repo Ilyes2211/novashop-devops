@@ -1,0 +1,11 @@
+stages:
+  - validate
+
+terraform_validate:
+  stage: validate
+  tags:
+    - devops
+  script:
+    - cd terraform
+    - terraform init
+    - terraform validate
